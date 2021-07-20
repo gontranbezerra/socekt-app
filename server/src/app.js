@@ -1,4 +1,13 @@
 const app = require('express')();
+// const cors = require("cors");
+
+const corsOptions = {
+  origin: '*',
+  optionsSuccessStatus: 200
+};
+// app.use(cors(corsOptions));
+app.use(require("cors")(corsOptions));
+
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
