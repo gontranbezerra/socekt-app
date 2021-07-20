@@ -1,20 +1,15 @@
 const app = require('express')();
-// const cors = require("cors");
-
-const corsOptions = {
-  origin: '*',
-  optionsSuccessStatus: 200
-};
-// app.use(cors(corsOptions));
-app.use(require("cors")(corsOptions));
-
 const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const io = require("socket.io")(http, {
+  cors: {
+    origin: "http://localhost:4200",
+    methods: ["GET", "POST"],
+  },
+});
 
 const documents = {};
 
 io.on("connection", socket => {
-  console.log("🚀 ~ file: app.js ~ line 8 ~ socket", socket)
 
   let previousId;
 
@@ -27,13 +22,15 @@ io.on("connection", socket => {
   }
 
   socket.on("getDoc", (docId) => {
-    console.log("🚀 ~ file: app.js ~ line 21 ~ socket.on ~ docId", docId)
+    console.log("🚀 ~ file: app.js ~ line 25 ~ socket.on ~ docId", docId)
+
     safeJoin(docId);
     socket.emit("document", documents[docId]);
   });
 
   socket.on("addDoc", (doc) => {
-    console.log("🚀 ~ file: app.js ~ line 27 ~ socket.on ~ doc", doc)
+    console.log("🚀 ~ file: app.js ~ line 32 ~ socket.on ~ doc", doc)
+
     documents[doc.id] = doc;
     safeJoin(doc.id);
     io.emit("documents", Object.keys(documents));
@@ -41,7 +38,7 @@ io.on("connection", socket => {
   });
 
   socket.on("editDoc", (doc) => {
-    console.log("🚀 ~ file: app.js ~ line 35 ~ socket.on ~ doc", doc)
+    console.log("🚀 ~ file: app.js ~ line 41 ~ socket.on ~ doc", doc)
     documents[doc.id] = doc;
     socket.to(doc.id).emit("document", doc);
   });
